@@ -71,7 +71,7 @@ public class StatsDao {
                 "group by app, uri "
                 +
                 "order by hits DESC ";
-//        System.out.println(sql);
+
         if (urisLocal.size() > 0) {
             List<ViewStats> viewStats = jdbcTemplate.query(sql, (rs, rowNum) -> makeViewStats(rs), start, end);
             return viewStats;

@@ -52,12 +52,9 @@ public class StatsClient extends BaseClient {
                 .queryParamIfPresent("uris", Optional.ofNullable(viewsStatsRequest.getUris()))
                 .encode()
                 .toUriString();
-//        System.out.println(urlTemplate);
 
         Map<String, Object> params = new HashMap<>();
-//        params.put("start", viewsStatsRequest.getStart());
         params.put("start", viewsStatsRequest.getStart().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-//        params.put("end", viewsStatsRequest.getEnd());
         params.put("end", viewsStatsRequest.getEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         params.put("unique", viewsStatsRequest.getUnique());
         if (viewsStatsRequest.getUris() != null) {
@@ -65,8 +62,6 @@ public class StatsClient extends BaseClient {
         } else {
             params.put("uris", null);
         }
-//        System.out.println(viewsStatsRequest);
-//        System.out.println(params);
         return get(urlTemplate, params);
     }
 }
