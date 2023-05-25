@@ -25,10 +25,9 @@ public class StatsController {
 
     @PostMapping("/hit")
     public ResponseEntity<?> addStats(@Validated @RequestBody EndpointHit endpointHit, HttpServletRequest request) {
-//        endpointHit.setIp(request.getRemoteAddr());
-//        System.out.println(endpointHit);
+        endpointHit.setIp(request.getRemoteAddr());
         statsService.createStat(endpointHit);
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
+        return new ResponseEntity<>("", HttpStatus.CREATED);
     }
 
     @GetMapping("/stats")

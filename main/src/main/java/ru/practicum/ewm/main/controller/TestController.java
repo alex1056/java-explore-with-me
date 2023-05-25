@@ -26,7 +26,7 @@ public class TestController {
 
         statsClient.hit(endpointHit.getApp(), endpointHit.getUri(), endpointHit.getIp());
 
-        return new ResponseEntity<>(null, HttpStatus.CREATED);
+        return new ResponseEntity<>("", HttpStatus.CREATED);
     }
 
     @GetMapping("/teststats")
