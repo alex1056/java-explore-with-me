@@ -55,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto updateCategory(Long catId, NewCategoryDto newCategory) {
         Category categorySaved = findCategoryById(catId);
         Optional<Category> namedCategory = repository.checkCategoryName(newCategory.getName());
-        if (namedCategory.isPresent() && categorySaved.getId() != (namedCategory.get().getId())) {
+        if (namedCategory.isPresent() && categorySaved.getId().equals((namedCategory.get().getId()))) {
             throw new Conflict409Exception("название категории занято");
         }
         categorySaved.setName(newCategory.getName());
