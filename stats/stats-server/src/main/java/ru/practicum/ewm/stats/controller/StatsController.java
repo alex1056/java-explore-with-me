@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.stats.EndpointHit;
 import ru.practicum.ewm.dto.stats.ViewStats;
 import ru.practicum.ewm.dto.stats.ViewsStatsRequest;
+import ru.practicum.ewm.stats.exceptions.BadRequestException;
 import ru.practicum.ewm.stats.service.StatsService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +40,9 @@ public class StatsController {
             @RequestParam(value = "uris", required = false) List<String> uris,
             @RequestParam(value = "unique", required = false) Boolean unique
     ) {
+        if (start.isAfter(end)) {
+            throw new BadRequestException("Время начала должно быьть раньше окончания");
+        }
         Boolean uniqueValue = unique == null ? false : unique;
         ViewsStatsRequest viewsStatsRequest = new ViewsStatsRequest(
                 start,

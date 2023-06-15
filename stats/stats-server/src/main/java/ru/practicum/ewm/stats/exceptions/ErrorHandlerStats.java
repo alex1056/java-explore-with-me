@@ -19,6 +19,12 @@ public class ErrorHandlerStats {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse badRequsetException(BadRequestException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
     private static class ErrorResponse {
         String error;
 
