@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    @Query("select cat from Category cat where cat.name = :newName")
+    @Query("select c from Category c where c.name = :newName")
     Optional<Category> checkCategoryName(@Param("newName") String newName);
 }
