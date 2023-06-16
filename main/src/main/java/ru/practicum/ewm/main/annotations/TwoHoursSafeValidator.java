@@ -1,6 +1,4 @@
-package ru.practicum.ewm.main.validator;
-
-import ru.practicum.ewm.main.annotations.TwoHoursSafe;
+package ru.practicum.ewm.main.annotations;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

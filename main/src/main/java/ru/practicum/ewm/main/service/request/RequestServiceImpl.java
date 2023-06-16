@@ -9,7 +9,7 @@ import ru.practicum.ewm.main.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.main.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.main.dto.request.RequestDto;
 import ru.practicum.ewm.main.dto.request.RequestMapper;
-import ru.practicum.ewm.main.exception.Conflict409Exception;
+import ru.practicum.ewm.main.exception.ConflictException;
 import ru.practicum.ewm.main.exception.NotFoundException;
 import ru.practicum.ewm.main.model.event.Event;
 import ru.practicum.ewm.main.model.request.Request;
@@ -40,19 +40,19 @@ public class RequestServiceImpl implements RequestService {
     public RequestDto saveRequest(Long userId, Long eventId) {
         Event event = eventService.getEventOriginById(eventId);
         if (event.getInitiatorId().equals(userId)) {
-            throw new Conflict409Exception("инициатор события не может отправлять запрос себе");
+            throw new ConflictException("инициатор события не может отправлять запрос себе");
         }
         if (event.getPublished() == null) {
-            throw new Conflict409Exception("нельзя участвовать в неопубликованном событии ");
+            throw new ConflictException("нельзя участвовать в неопубликованном событии ");
         }
         Optional<Request> requestOpt = repository.findRequest(userId, eventId);
         if (requestOpt.isPresent()) {
-            throw new Conflict409Exception("запрос уже имеется");
+            throw new ConflictException("запрос уже имеется");
         }
 
         RequestCounter rc = requestSpecRepository.findRequestCountAllByStatus(eventId, RequestStatus.CONFIRMED);
         if (event.getParticipantLimit() != 0 && rc.getCounter() >= event.getParticipantLimit()) {
-            throw new Conflict409Exception("достигнуто ограничение мест");
+            throw new ConflictException("достигнуто ограничение мест");
         }
 
         Request request = new Request(
@@ -129,7 +129,7 @@ public class RequestServiceImpl implements RequestService {
         Boolean requestModeration = event.getRequestModeration();
 
         if (participantLimit != 0 && participantLimit == confRequestNumber) {
-            throw new Conflict409Exception("Лимит заявок исчерпан");
+            throw new ConflictException("Лимит заявок исчерпан");
         }
 
         /* 1. проверяем все ли id имеются */
@@ -140,7 +140,7 @@ public class RequestServiceImpl implements RequestService {
         /* 2. проверяем все ли заявки со статусом PENDING */
         RequestCounter rc1 = requestSpecRepository.findRequestCountAllPending(RequestStatus.PENDING, ids);
         if (ids.size() != rc1.getCounter()) {
-            throw new Conflict409Exception("какая-то заявка имеет status отличный от PENDING");
+            throw new ConflictException("какая-то заявка имеет status отличный от PENDING");
         }
 
         /* 3. если отключена премодерация или без ограничений участников (это учтено при подаче заявок) */

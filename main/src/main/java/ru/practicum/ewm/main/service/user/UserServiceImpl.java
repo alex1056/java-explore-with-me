@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.main.dto.user.NewUserRequestDto;
 import ru.practicum.ewm.main.dto.user.UserDto;
 import ru.practicum.ewm.main.dto.user.UserMapper;
-import ru.practicum.ewm.main.exception.Conflict409Exception;
+import ru.practicum.ewm.main.exception.ConflictException;
 import ru.practicum.ewm.main.exception.NotFoundException;
 import ru.practicum.ewm.main.helper.Helpers;
 import ru.practicum.ewm.main.model.User;
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     public UserDto saveUser(NewUserRequestDto newUserRequestDto) {
         Optional<User> namedUser = repository.checkUserName(newUserRequestDto.getName());
         if (namedUser.isPresent()) {
-            throw new Conflict409Exception("имя уже занято");
+            throw new ConflictException("имя уже занято");
         }
         User user = repository.save(UserMapper.toNewUser(newUserRequestDto));
         return UserMapper.toUserDto(user);

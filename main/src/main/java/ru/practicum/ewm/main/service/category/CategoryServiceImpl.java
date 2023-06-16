@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.main.dto.category.CategoryDto;
 import ru.practicum.ewm.main.dto.category.CategoryMapper;
 import ru.practicum.ewm.main.dto.category.NewCategoryDto;
-import ru.practicum.ewm.main.exception.Conflict409Exception;
+import ru.practicum.ewm.main.exception.ConflictException;
 import ru.practicum.ewm.main.exception.NotFoundException;
 import ru.practicum.ewm.main.helper.Helpers;
 import ru.practicum.ewm.main.model.Category;
@@ -33,7 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category categoryToSave = new Category(null, newCategory.getName(), null);
         Optional<Category> namedCategory = repository.checkCategoryName(newCategory.getName());
         if (namedCategory.isPresent()) {
-            throw new Conflict409Exception("название категории занято");
+            throw new ConflictException("название категории занято");
         }
         return CategoryMapper.toCategoryDto(repository.save(categoryToSave));
     }
@@ -44,7 +44,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = findCategoryById(catId);
         List<Event> events = eventRepository.findEventByCategoryId(catId);
         if (events.size() > 0) {
-            throw new Conflict409Exception("Категория содержит события");
+            throw new ConflictException("Категория содержит события");
         }
         repository.deleteById(catId);
 
@@ -56,7 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category categorySaved = findCategoryById(catId);
         Optional<Category> namedCategory = repository.checkCategoryName(newCategory.getName());
         if (namedCategory.isPresent() && !categorySaved.getId().equals((namedCategory.get().getId()))) {
-            throw new Conflict409Exception("название категории занято");
+            throw new ConflictException("название категории занято");
         }
         categorySaved.setName(newCategory.getName());
         return CategoryMapper.toCategoryDto(repository.save(categorySaved));

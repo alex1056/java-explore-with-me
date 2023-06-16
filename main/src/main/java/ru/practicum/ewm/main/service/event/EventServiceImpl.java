@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.main.dto.event.*;
-import ru.practicum.ewm.main.exception.Conflict409Exception;
+import ru.practicum.ewm.main.exception.ConflictException;
 import ru.practicum.ewm.main.exception.NotFoundException;
 import ru.practicum.ewm.main.helper.Helpers;
 import ru.practicum.ewm.main.model.Category;
@@ -142,7 +142,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest eventToUpdate) {
         Event event = getEvent(userId, eventId);
         if (event.getState().equals(EventState.PUBLISHED)) {
-            throw new Conflict409Exception("Изменение уже опубликованных событий запрещено");
+            throw new ConflictException("Изменение уже опубликованных событий запрещено");
         }
 
         if (eventToUpdate.getLocation() != null) {
@@ -171,17 +171,17 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEventAdmin(Long eventId, UpdateEventAdminRequest eventToUpdate) {
         Event event = getEventOriginById(eventId);
         if (event.getEventDate().plusHours(1).isBefore(LocalDateTime.now())) {
-            throw new Conflict409Exception("Изменение запрещено, т.к. событие состоится менее чем через 1 час");
+            throw new ConflictException("Изменение запрещено, т.к. событие состоится менее чем через 1 час");
         }
 
         if (eventToUpdate.getStateAction() == StateActionAdmin.PUBLISH_EVENT) {
 
             if (event.getPublished() != null) {
-                throw new Conflict409Exception("событие опубликовано ранее");
+                throw new ConflictException("событие опубликовано ранее");
             }
 
             if (event.getState() == EventState.CANCELED) {
-                throw new Conflict409Exception("событие отменено пользователем ранее");
+                throw new ConflictException("событие отменено пользователем ранее");
             }
 
             event.setPublished(LocalDateTime.now());
@@ -189,7 +189,7 @@ public class EventServiceImpl implements EventService {
         }
         if (eventToUpdate.getStateAction() == StateActionAdmin.REJECT_EVENT) {
             if (event.getPublished() != null) {
-                throw new Conflict409Exception("событие опубликовано ранее");
+                throw new ConflictException("событие опубликовано ранее");
             }
 
             event.setState(EventState.CANCELED);

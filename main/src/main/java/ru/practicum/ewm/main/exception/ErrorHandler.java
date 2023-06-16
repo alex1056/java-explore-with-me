@@ -42,9 +42,9 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler(Conflict409Exception.class)
+    @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleConflictException(Conflict409Exception e) {
+    public ErrorResponse handleConflictException(ConflictException e) {
         return new ErrorResponse("Конфликт: " + e.getMessage());
     }
 

@@ -1,7 +1,5 @@
 package ru.practicum.ewm.main.annotations;
 
-import ru.practicum.ewm.main.validator.TwoHoursSafeValidator;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;
