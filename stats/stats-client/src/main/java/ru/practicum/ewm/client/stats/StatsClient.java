@@ -1,21 +1,23 @@
 package ru.practicum.ewm.client.stats;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.ewm.dto.stats.EndpointHit;
+import ru.practicum.ewm.dto.stats.ViewStats;
 import ru.practicum.ewm.dto.stats.ViewsStatsRequest;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class StatsClient extends BaseClient {
@@ -43,7 +45,7 @@ public class StatsClient extends BaseClient {
         post("/hit", hit);
     }
 
-    public ResponseEntity<Object> get(ViewsStatsRequest viewsStatsRequest) {
+    public List<ViewStats> get(ViewsStatsRequest viewsStatsRequest) {
         String urlTemplate = UriComponentsBuilder.fromHttpUrl(serverUrl + "/stats")
                 .queryParam("start", "{start}")
                 .queryParam("end", "{end}")
@@ -62,6 +64,17 @@ public class StatsClient extends BaseClient {
         } else {
             params.put("uris", null);
         }
-        return get(urlTemplate, params);
+
+        ResponseEntity response = get(urlTemplate, params);
+        HttpStatus code = response.getStatusCode();
+        if (code == HttpStatus.OK) {
+            ObjectMapper mapper = new ObjectMapper();
+            List<ViewStats> pojos = mapper.convertValue(response.getBody(), new TypeReference<List<ViewStats>>() {
+            });
+            if (pojos == null)
+                return new ArrayList<ViewStats>();
+            return pojos;
+        }
+        return new ArrayList<ViewStats>();
     }
 }
