@@ -12,12 +12,17 @@ import ru.practicum.ewm.main.dto.compilation.CompilationDto;
 import ru.practicum.ewm.main.dto.compilation.NewCompilationDto;
 import ru.practicum.ewm.main.dto.compilation.UpdateCompilationDto;
 import ru.practicum.ewm.main.dto.event.*;
+import ru.practicum.ewm.main.dto.locationAdmin.LocationAdminDto;
+import ru.practicum.ewm.main.dto.locationAdmin.NewLocationAdminDto;
+import ru.practicum.ewm.main.dto.locationAdmin.UpdateLocationAdminRequest;
 import ru.practicum.ewm.main.dto.user.NewUserRequestDto;
 import ru.practicum.ewm.main.dto.user.UserDto;
+import ru.practicum.ewm.main.model.LocationAdmin;
 import ru.practicum.ewm.main.model.event.EventState;
 import ru.practicum.ewm.main.service.category.CategoryService;
 import ru.practicum.ewm.main.service.compilation.CompilationService;
 import ru.practicum.ewm.main.service.event.EventService;
+import ru.practicum.ewm.main.service.locationAdmin.LocationAdminService;
 import ru.practicum.ewm.main.service.stat.StatService;
 import ru.practicum.ewm.main.service.user.UserService;
 
@@ -36,6 +41,7 @@ public class AdminController {
     private final CompilationService compilationService;
     private final EventService eventService;
     private final StatService statService;
+    private final LocationAdminService locationAdminService;
 
     @GetMapping("/events")
     public List<EventFullDto> getAllEventsAdmin(
@@ -72,6 +78,38 @@ public class AdminController {
         EventFullDto event = eventService.updateEventAdmin(eventId, eventToUpdate);
         return event;
     }
+
+    @PostMapping("/locations")
+    public ResponseEntity<Object> saveNewLocation(@Validated @RequestBody NewLocationAdminDto newLocation) {
+        statService.saveHit("/admin/locations");
+        LocationAdminDto locationSaved = locationAdminService.saveLocationAdmin(newLocation);
+        return new ResponseEntity<>(locationSaved, HttpStatus.CREATED);
+    }
+
+    @PatchMapping("/locations/{locationId}")
+    public LocationAdminDto updateLocationAdmin(@PathVariable Long locationId,
+                                                @Validated @RequestBody UpdateLocationAdminRequest updateLocation
+    ) {
+        statService.saveHit("/admin/locations/" + locationId);
+        return locationAdminService.updateLocationAdmin(locationId, updateLocation);
+    }
+
+    @GetMapping("/locations")
+    public List<LocationAdminDto> getLocationAdmin() {
+        statService.saveHit("/admin/locations");
+        return locationAdminService.getLocationAdmin();
+    }
+
+    @GetMapping("/locations/{locationId}/events")
+    public List<EventFullDto> getAllEventsInLocation(
+            @PathVariable Long locationId,
+            @RequestParam(defaultValue = "10") @Min(0) Double radius,
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+        statService.saveHit("/admin/locations/" + locationId + "/events");
+        return locationAdminService.getAllEventsInLocation(locationId, radius, from, size);
+    }
+
 
     @PostMapping("/compilations")
     public ResponseEntity<Object> saveNewCompilation(@Validated @RequestBody NewCompilationDto newCompilationDto) {
