@@ -10,30 +10,18 @@ import ru.practicum.ewm.main.dto.locationAdmin.LocationAdminDto;
 import ru.practicum.ewm.main.dto.locationAdmin.LocationAdminMapper;
 import ru.practicum.ewm.main.dto.locationAdmin.NewLocationAdminDto;
 import ru.practicum.ewm.main.dto.locationAdmin.UpdateLocationAdminRequest;
-import ru.practicum.ewm.main.exception.ConflictException;
 import ru.practicum.ewm.main.exception.NotFoundException;
 import ru.practicum.ewm.main.helper.Helpers;
-import ru.practicum.ewm.main.model.Category;
 import ru.practicum.ewm.main.model.Location;
 import ru.practicum.ewm.main.model.LocationAdmin;
 import ru.practicum.ewm.main.model.event.Event;
-import ru.practicum.ewm.main.model.event.EventState;
-import ru.practicum.ewm.main.model.event.StateActionAdmin;
-import ru.practicum.ewm.main.model.event.StateActionUser;
-import ru.practicum.ewm.main.model.request.RequestCounter;
-import ru.practicum.ewm.main.model.request.RequestStatus;
 import ru.practicum.ewm.main.repository.EventRepository;
 import ru.practicum.ewm.main.repository.LocationAdminRepository;
-import ru.practicum.ewm.main.repository.RequestSpecRepository;
-import ru.practicum.ewm.main.service.category.CategoryService;
+import ru.practicum.ewm.main.repository.LocationRepository;
 import ru.practicum.ewm.main.service.location.LocationService;
-import ru.practicum.ewm.main.service.stat.StatService;
 
-import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -42,6 +30,7 @@ public class LocationAdminServiceImpl implements LocationAdminService {
     private final LocationAdminRepository repository;
     private final LocationService locationService;
     private final EventRepository repositoryEvent;
+    private final LocationRepository repositoryLocation;
 
     @Transactional
     @Override
@@ -62,12 +51,7 @@ public class LocationAdminServiceImpl implements LocationAdminService {
     @Transactional
     @Override
     public LocationAdminDto getLocationAdminById(Long id) {
-        Optional<LocationAdmin> locationOpt = repository.findById(id);
-        if (locationOpt.isPresent()) {
-            LocationAdmin location = locationOpt.get();
-            return LocationAdminMapper.toLocationAdminDto(location);
-        }
-        return null;
+        return LocationAdminMapper.toLocationAdminDto(getLocationAdminByIdPrivate(id));
     }
 
     @Transactional
@@ -86,7 +70,7 @@ public class LocationAdminServiceImpl implements LocationAdminService {
     }
 
     private LocationAdmin getLocationAdminByIdPrivate(Long id) {
-        Optional<LocationAdmin> locationOpt = repository.findById(id);
+        Optional<LocationAdmin> locationOpt = repository.findLocationAdminById(id);
         locationOpt.orElseThrow(() -> new NotFoundException("Локация с id=" + id));
         return locationOpt.get();
     }
@@ -101,5 +85,12 @@ public class LocationAdminServiceImpl implements LocationAdminService {
         Pageable page = PageRequest.of(Helpers.getPageNumber(from, size), size);
         List<Event> events = repositoryEvent.findEventsInLocation(la.getLocation().getLat(), la.getLocation().getLon(), radius, page).getContent();
         return EventMapper.toEventFullDto(events);
+    }
+
+    @Override
+    @Transactional
+    public void deleteLocationAdmin(Long locationId) {
+        LocationAdmin location = getLocationAdminByIdPrivate(locationId);
+        repository.delete(location);
     }
 }

@@ -17,7 +17,6 @@ import ru.practicum.ewm.main.dto.locationAdmin.NewLocationAdminDto;
 import ru.practicum.ewm.main.dto.locationAdmin.UpdateLocationAdminRequest;
 import ru.practicum.ewm.main.dto.user.NewUserRequestDto;
 import ru.practicum.ewm.main.dto.user.UserDto;
-import ru.practicum.ewm.main.model.LocationAdmin;
 import ru.practicum.ewm.main.model.event.EventState;
 import ru.practicum.ewm.main.service.category.CategoryService;
 import ru.practicum.ewm.main.service.compilation.CompilationService;
@@ -90,14 +89,29 @@ public class AdminController {
     public LocationAdminDto updateLocationAdmin(@PathVariable Long locationId,
                                                 @Validated @RequestBody UpdateLocationAdminRequest updateLocation
     ) {
+
         statService.saveHit("/admin/locations/" + locationId);
         return locationAdminService.updateLocationAdmin(locationId, updateLocation);
     }
+
+    @DeleteMapping("/locations/{locationId}")
+    public ResponseEntity<Object> deleteLocation(@PathVariable Long locationId) {
+        statService.saveHit("/admin/locations/" + locationId);
+        locationAdminService.deleteLocationAdmin(locationId);
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
+    }
+
 
     @GetMapping("/locations")
     public List<LocationAdminDto> getLocationAdmin() {
         statService.saveHit("/admin/locations");
         return locationAdminService.getLocationAdmin();
+    }
+
+    @GetMapping("/locations/{locationId}")
+    public LocationAdminDto getLocationById(@PathVariable Long locationId) {
+        statService.saveHit("/admin/locations/" + locationId);
+        return locationAdminService.getLocationAdminById(locationId);
     }
 
     @GetMapping("/locations/{locationId}/events")
@@ -109,7 +123,6 @@ public class AdminController {
         statService.saveHit("/admin/locations/" + locationId + "/events");
         return locationAdminService.getAllEventsInLocation(locationId, radius, from, size);
     }
-
 
     @PostMapping("/compilations")
     public ResponseEntity<Object> saveNewCompilation(@Validated @RequestBody NewCompilationDto newCompilationDto) {

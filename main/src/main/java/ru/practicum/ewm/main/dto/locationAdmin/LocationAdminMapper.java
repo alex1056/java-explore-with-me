@@ -1,11 +1,7 @@
 package ru.practicum.ewm.main.dto.locationAdmin;
 
-import ru.practicum.ewm.main.dto.event.EventFullDto;
-import ru.practicum.ewm.main.dto.location.LocationDto;
 import ru.practicum.ewm.main.dto.location.LocationMapper;
-import ru.practicum.ewm.main.model.Location;
 import ru.practicum.ewm.main.model.LocationAdmin;
-import ru.practicum.ewm.main.model.event.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +11,7 @@ public class LocationAdminMapper {
     public static LocationAdminDto toLocationAdminDto(LocationAdmin la) {
         if (la == null) return null;
         return new LocationAdminDto(
-                la.getLocationId(),
+                la.getId(),
                 la.getName(),
                 LocationMapper.toLocationDto(la.getLocation())
         );
@@ -28,6 +24,4 @@ public class LocationAdminMapper {
         }
         return result;
     }
-
-
 }

@@ -20,4 +20,5 @@ public interface LocationAdminService {
 
     List<EventFullDto> getAllEventsInLocation(Long locationId, Double radius, Integer from, Integer size);
 
+    void deleteLocationAdmin(Long locationId);
 }

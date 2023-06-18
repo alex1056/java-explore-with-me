@@ -6,4 +6,4 @@
 
 ### Схема БД Ewm
 
-<img width="200" src="img/sheme2.png">
+<img width="200" src="img/scheme3.png">
