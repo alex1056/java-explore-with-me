@@ -27,7 +27,7 @@ public class BaseClient {
     protected <T> ResponseEntity<Object> post(String path, @Nullable Map<String, Object> params, T body) {
         return makeAndSendRequest(HttpMethod.POST, path, params, body);
     }
-    
+
     private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, @Nullable Map<String, Object> parameters, @Nullable T body) {
         HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
 
