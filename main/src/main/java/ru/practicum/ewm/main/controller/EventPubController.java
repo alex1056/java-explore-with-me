@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.main.dto.event.*;
 import ru.practicum.ewm.main.exception.BadRequestException;
 import ru.practicum.ewm.main.service.event.EventService;
+import ru.practicum.ewm.main.service.location.LocationService;
 import ru.practicum.ewm.main.service.stat.StatService;
 
 import javax.validation.constraints.Min;
@@ -21,6 +22,7 @@ import java.util.List;
 public class EventPubController {
     private final EventService eventService;
     private final StatService statService;
+    private final LocationService locationService;
 
     @GetMapping
     public List<EventShortDto> getAllEvents(

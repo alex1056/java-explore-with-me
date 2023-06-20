@@ -17,4 +17,15 @@ public class Location {
     private Long id;
     private Double lat;
     private Double lon;
+    private String name;
+    private String description;
+    private Double radius;
+
+    public String getName() {
+        return name != null ? name.trim() : null;
+    }
+
+    public String getDescription() {
+        return description != null ? description.trim() : null;
+    }
 }

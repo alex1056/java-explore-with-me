@@ -24,7 +24,7 @@
 											"\r",
 											"    let locationAdmin;\r",
 											"    try {\r",
-											"        locationAdmin = rnd.getLocation();\r",
+											"        locationAdmin = rnd.getLocationAdmin(10);\r",
 											"        delete locationAdmin[\"name\"];\r",
 											"    } catch(err) {\r",
 											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
@@ -117,8 +117,10 @@
 											"\r",
 											"    let locationAdmin;\r",
 											"    try {\r",
-											"        locationAdmin = rnd.getLocation();\r",
-											"        delete locationAdmin[\"location\"];\r",
+											"        locationAdmin = rnd.getLocationAdmin(10);\r",
+											"        delete locationAdmin[\"radius\"];\r",
+											"        delete locationAdmin[\"lat\"];\r",
+											"        delete locationAdmin[\"lon\"];\r",
 											"    } catch(err) {\r",
 											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
 											"    }\r",
@@ -152,7 +154,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Ответ должен содержать код статуса 201 и данные в формате json\", function () {\r",
+											"pm.test(\"Ответ должен содержать код статуса 400 и данные в формате json\", function () {\r",
 											"    pm.response.to.have.status(400);\r",
 											"    pm.response.to.be.withBody;\r",
 											"    pm.response.to.be.json;\r",
@@ -209,20 +211,15 @@
 											"    const api = new API(pm);\r",
 											"    const rnd = new RandomUtils();\r",
 											"\r",
-											"    let locationAdmin;\r",
 											"    try {\r",
-											"        locationAdmin = rnd.getLocation();\r",
-											"    } catch(err) {\r",
-											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
-											"    }\r",
-											"\r",
-											"    try {\r",
+											"        let locationAdmin = rnd.getLocationAdmin(10); \r",
 											"        let location = await api.addLocation(locationAdmin);\r",
-											"        let location2 = rnd.getLocationWithVarName(\"Diff name\")\r",
+											"        let location2 = rnd.getLocationAdmin(10); \r",
+											"        location.name = location2.name;\r",
 											"        pm.collectionVariables.set(\"eid\", location.id)\r",
 											"        pm.request.body.update({\r",
 											"            mode: 'raw',\r",
-											"            raw: JSON.stringify(location2),\r",
+											"            raw: JSON.stringify(location),\r",
 											"            options: { raw: { language: 'json' } }\r",
 											"        });\r",
 											"    } catch(err) {\r",
@@ -264,147 +261,20 @@
 											"\r",
 											"pm.test(\"Подборка должны содержать поля: id, name, location\", function () {\r",
 											"pm.expect(target).to.have.property('id');\r",
+											"pm.expect(target).to.have.property('lat');\r",
+											"pm.expect(target).to.have.property('lon');\r",
 											"pm.expect(target).to.have.property('name');\r",
-											"pm.expect(target).to.have.property('location');\r",
+											"pm.expect(target).to.have.property('description');\r",
+											"pm.expect(target).to.have.property('radius');\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
-											"    pm.expect(target.id).to.not.be.null;\r",
-											"    pm.expect(target.name).to.be.a(\"string\");\r",
-											"    pm.expect(target.location).to.be.an(\"object\");\r",
+											"    pm.expect(source.id).equal(target.id, 'Id должны быть идентичны ');\r",
+											"    pm.expect(source.lat).equal(target.lat, 'Latitude должны быть идентичны ');\r",
+											"    pm.expect(source.lon).equal(target.lon, 'Longitude должны быть идентичны ');\r",
 											"    pm.expect(source.name).equal(target.name, 'Имя должно быть идентичным ');\r",
-											"    pm.expect(source.location.lat).equal(target.location.lat, 'Latitude должны быть идентичны ');\r",
-											"    pm.expect(source.location.lon).equal(target.location.lon, 'Longitude должны быть идентичны ');\r",
-											"});\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "PATCH",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									},
-									{
-										"key": "Accept",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{baseUrl}}/admin/locations/:locationId",
-									"host": [
-										"{{baseUrl}}"
-									],
-									"path": [
-										"admin",
-										"locations",
-										":locationId"
-									],
-									"variable": [
-										{
-											"key": "locationId",
-											"value": "{{eid}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Обновление новой локации с параметром Location",
-							"event": [
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"const main = async () => {\r",
-											"    const api = new API(pm);\r",
-											"    const rnd = new RandomUtils();\r",
-											"\r",
-											"    let locationAdmin;\r",
-											"    try {\r",
-											"        locationAdmin = rnd.getLocation();\r",
-											"    } catch(err) {\r",
-											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
-											"    }\r",
-											"\r",
-											"    try {\r",
-											"        let location = await api.addLocation(locationAdmin);\r",
-											"        let location2 = rnd.getLocationWithVarName(location.name)\r",
-											"        let lat = parseFloat(pm.variables.replaceIn('{{$randomLatitude}}'))\r",
-											"        let lon = parseFloat(pm.variables.replaceIn('{{$randomLongitude}}'))\r",
-											"    \r",
-											"        location2.location = {lat, lon}\r",
-											"\r",
-											"        pm.collectionVariables.set(\"eid\", location.id)\r",
-											"        pm.request.body.update({\r",
-											"            mode: 'raw',\r",
-											"            raw: JSON.stringify(location2),\r",
-											"            options: { raw: { language: 'json' } }\r",
-											"        });\r",
-											"    } catch(err) {\r",
-											"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
-											"    }\r",
-											"};\r",
-											"\r",
-											"\r",
-											"const interval = setInterval(() => {}, 1000);\r",
-											"\r",
-											"setTimeout(async () => \r",
-											"    {\r",
-											"        try {\r",
-											"            await main();\r",
-											"        } catch (e) {\r",
-											"            console.error(e);\r",
-											"        } finally {\r",
-											"            clearInterval(interval);\r",
-											"        }\r",
-											"    },  \r",
-											"    100 \r",
-											");"
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"    pm.response.to.be.withBody;\r",
-											"    pm.response.to.be.json;\r",
-											"});\r",
-											"\r",
-											"const source = JSON.parse(pm.request.body.raw);\r",
-											"const target = pm.response.json();\r",
-											"\r",
-											"pm.test(\"Подборка должны содержать поля: id, name, location\", function () {\r",
-											"pm.expect(target).to.have.property('id');\r",
-											"pm.expect(target).to.have.property('name');\r",
-											"pm.expect(target).to.have.property('location');\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
-											"    pm.expect(target.id).to.not.be.null;\r",
-											"    pm.expect(target.name).to.be.a(\"string\");\r",
-											"    pm.expect(target.location).to.be.an(\"object\");\r",
-											"    pm.expect(source.name).equal(target.name, 'Имя должно быть идентичным ');\r",
-											"    pm.expect(source.location.lat).equal(target.location.lat, 'Latitude должны быть идентичны ');\r",
-											"    pm.expect(source.location.lon).equal(target.location.lon, 'Longitude должны быть идентичны ');\r",
+											"    pm.expect(source.description).equal(target.description, 'Описание должно быть идентичным ');\r",
+											"    pm.expect(source.radius).equal(target.radius, 'Радиус должно быть идентичным ');\r",
 											"});\r",
 											""
 										],
@@ -468,7 +338,7 @@
 									"\r",
 									"    let locationAdmin;\r",
 									"    try {\r",
-									"        locationAdmin = rnd.getLocation();\r",
+									"        locationAdmin = rnd.getLocationAdmin(10); \r",
 									"    } catch(err) {\r",
 									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
 									"    }\r",
@@ -513,17 +383,20 @@
 									"\r",
 									"pm.test(\"Подборка должны содержать поля: id, name, location\", function () {\r",
 									"pm.expect(target).to.have.property('id');\r",
+									"pm.expect(target).to.have.property('lat');\r",
+									"pm.expect(target).to.have.property('lon');\r",
 									"pm.expect(target).to.have.property('name');\r",
-									"pm.expect(target).to.have.property('location');\r",
+									"pm.expect(target).to.have.property('description');\r",
+									"pm.expect(target).to.have.property('radius');\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
 									"    pm.expect(target.id).to.not.be.null;\r",
-									"    pm.expect(target.name).to.be.a(\"string\");\r",
-									"    pm.expect(target.location).to.be.an(\"object\");\r",
+									"    pm.expect(source.lat).equal(target.lat, 'Latitude должны быть идентичны ');\r",
+									"    pm.expect(source.lon).equal(target.lon, 'Longitude должны быть идентичны ');\r",
 									"    pm.expect(source.name).equal(target.name, 'Имя должно быть идентичным ');\r",
-									"    pm.expect(source.location.lat).equal(target.location.lat, 'Latitude должны быть идентичны ');\r",
-									"    pm.expect(source.location.lon).equal(target.location.lon, 'Longitude должны быть идентичны ');\r",
+									"    pm.expect(source.description).equal(target.description, 'Описание должно быть идентичным ');\r",
+									"    pm.expect(source.radius).equal(target.radius, 'Радиус должно быть идентичным ');\r",
 									"});\r",
 									""
 								],
@@ -578,7 +451,7 @@
 									"\r",
 									"    let locationAdmin;\r",
 									"    try {\r",
-									"        locationAdmin = rnd.getLocationWithCustomLocation(55.575574, 36.695178);\r",
+									"        locationAdmin = rnd.getLocationWithCustomLocation(55.575574, 36.695178, 8); // событие находится в 6,5 км от локации\r",
 									"        locationAdmin = await api.addLocation(locationAdmin);\r",
 									"        pm.collectionVariables.set(\"eid\", locationAdmin.id)\r",
 									"        const user = await api.addUser(rnd.getUser());\r",
@@ -587,8 +460,6 @@
 									"        eventPrev.location = {lat: 55.517903, lon:36.691922}\r",
 									"        let event = await api.addEvent(user.id, eventPrev);\r",
 									"        event = await api.publishEvent(event.id);\r",
-									"        pm.request.removeQueryParams(['radius']);\r",
-									"        pm.request.addQueryParams([`radius=` + 7]); // событие находится в 6,5 км от локации\r",
 									"        pm.collectionVariables.set('response', event);\r",
 									"    } catch(err) {\r",
 									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
@@ -693,12 +564,11 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/admin/locations/:locationId/events?radius=1&size=10&from=0",
+							"raw": "{{baseUrl}}/locations/:locationId/events?size=10&from=0",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"admin",
 								"locations",
 								":locationId",
 								"events"
@@ -706,7 +576,8 @@
 							"query": [
 								{
 									"key": "radius",
-									"value": "1"
+									"value": "1",
+									"disabled": true
 								},
 								{
 									"key": "size",
@@ -728,7 +599,7 @@
 					"response": []
 				},
 				{
-					"name": "Поиск событий в локации (событие внутри локации) Copy",
+					"name": "Удаление локации",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -740,14 +611,11 @@
 									"\r",
 									"    let locationAdmin;\r",
 									"    try {\r",
-									"        locationAdmin = rnd.getLocation();\r",
+									"        locationAdmin = rnd.getLocationAdmin(10); \r",
 									"        locationAdmin = await api.addLocation(locationAdmin);\r",
 									"        pm.collectionVariables.set(\"eid\", locationAdmin.id);\r",
-									"        console.log({locationAdmin})\r",
 									"        const foundedLocation = await api.findLocation(locationAdmin.id);\r",
-									"        pm.collectionVariables.set(\"response\", foundedLocation)\r",
-									"        console.log({foundedLocation})\r",
-									"\r",
+									"        pm.collectionVariables.set(\"response\", foundedLocation)    \r",
 									"    } catch(err) {\r",
 									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
 									"    }\r",
@@ -857,7 +725,7 @@
 									"\r",
 									"    let locationAdmin;\r",
 									"    try { \r",
-									"        locationAdmin = rnd.getLocationWithCustomLocation(55.510207, 36.339041);\r",
+									"        locationAdmin = rnd.getLocationWithCustomLocation(55.510207, 36.339041, 7); // 7 км вокруг\r",
 									"        locationAdmin = await api.addLocation(locationAdmin);\r",
 									"        pm.collectionVariables.set(\"eid\", locationAdmin.id)\r",
 									"        const user = await api.addUser(rnd.getUser());\r",
@@ -866,15 +734,14 @@
 									"        \r",
 									"        eventPrev1.location = {lat: 55.473871, lon:36.361036} // 4.5 км от локации\r",
 									"        let event = await api.addEvent(user.id, eventPrev1);\r",
+									"        event = await api.publishEvent(event.id);\r",
 									"        pm.collectionVariables.set('response', event);\r",
 									"\r",
-									"        const eventPrev2 = rnd.getEvent(category.id);\r",
+									"        let eventPrev2 = rnd.getEvent(category.id);\r",
 									"        eventPrev2.location = {lat: 55.471531, lon:36.690484} // локация более 20 км от установленной выше локации\r",
-									"        await api.addEvent(user.id, eventPrev2);\r",
 									"        \r",
-									"        pm.request.removeQueryParams(['radius']);\r",
-									"        pm.request.addQueryParams([`radius=` + 5]); // событие находится в 6,5 км от локации\r",
-									"        \r",
+									"        eventPrev2 =  await api.addEvent(user.id, eventPrev2);  \r",
+									"        await api.publishEvent(eventPrev2.id);      \r",
 									"    } catch(err) {\r",
 									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
 									"    }\r",
@@ -979,21 +846,16 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/admin/locations/:locationId/events?radius=1&size=10&from=0",
+							"raw": "{{baseUrl}}/locations/:locationId/events?size=10&from=0",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"admin",
 								"locations",
 								":locationId",
 								"events"
 							],
 							"query": [
-								{
-									"key": "radius",
-									"value": "1"
-								},
 								{
 									"key": "size",
 									"value": "10"
@@ -1026,17 +888,15 @@
 									"\r",
 									"    let locationAdmin;\r",
 									"    try {\r",
-									"        locationAdmin = rnd.getLocationWithCustomLocation(55.575574, 36.695178);\r",
+									"        locationAdmin = rnd.getLocationWithCustomLocation(55.575574, 36.695178, 5);\r",
 									"        locationAdmin = await api.addLocation(locationAdmin);\r",
 									"        pm.collectionVariables.set(\"eid\", locationAdmin.id)\r",
 									"        const user = await api.addUser(rnd.getUser());\r",
 									"        const category = await api.addCategory(rnd.getCategory());\r",
 									"        const eventPrev = rnd.getEvent(category.id);\r",
-									"        eventPrev.location = {lat: 55.517903, lon:36.691922}\r",
+									"        eventPrev.location = {lat: 55.517903, lon:36.691922} // событие находится в 6,5 км от локации\r",
 									"        let event = await api.addEvent(user.id, eventPrev);\r",
 									"        event = await api.publishEvent(event.id);\r",
-									"        pm.request.removeQueryParams(['radius']);\r",
-									"        pm.request.addQueryParams([`radius=` + 5]); // событие находится в 6,5 км от локации\r",
 									"        pm.collectionVariables.set('response', event);\r",
 									"    } catch(err) {\r",
 									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
@@ -1111,21 +971,16 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/admin/locations/:locationId/events?radius=1&size=10&from=0",
+							"raw": "{{baseUrl}}/locations/:locationId/events?size=10&from=0",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"admin",
 								"locations",
 								":locationId",
 								"events"
 							],
 							"query": [
-								{
-									"key": "radius",
-									"value": "1"
-								},
 								{
 									"key": "size",
 									"value": "10"
@@ -1140,6 +995,130 @@
 									"key": "locationId",
 									"value": "{{eid}}"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Поиск локаций пользователем",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const main = async () => {\r",
+									"    const api = new API(pm);\r",
+									"    const rnd = new RandomUtils();\r",
+									"\r",
+									"    let locationAdmin1;\r",
+									"    try { \r",
+									"        locationAdmin1 = rnd.getLocationAdmin(10); \r",
+									"        locationAdmin1 = await api.addLocation(locationAdmin1);\r",
+									"        let locationAdmin2 = rnd.getLocationAdmin(10); \r",
+									"        locationAdmin2 = await api.addLocation(locationAdmin2);\r",
+									"        let locationAdmin3 = rnd.getLocationAdmin(10); \r",
+									"        locationAdmin3 = await api.addLocation(locationAdmin3);\r",
+									"        pm.collectionVariables.set('response', locationAdmin3);  \r",
+									"    } catch(err) {\r",
+									"        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+									"    }\r",
+									"};\r",
+									"\r",
+									"const interval = setInterval(() => {}, 1000);\r",
+									"\r",
+									"setTimeout(async () => \r",
+									"    {\r",
+									"        try {\r",
+									"            await main();\r",
+									"        } catch (e) {\r",
+									"            console.error(e);\r",
+									"        } finally {\r",
+									"            clearInterval(interval);\r",
+									"        }\r",
+									"    },  \r",
+									"    100 \r",
+									");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.be.withBody;\r",
+									"    pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const source = pm.collectionVariables.get('response');\r",
+									"\r",
+									"const targetRaw = pm.response.json();\r",
+									"const target = pm.response.json()[0];\r",
+									"\r",
+									"pm.test(\"Ответ должен содержать массив\", function () {\r",
+									"pm.expect(targetRaw).to.be.a(\"array\");\r",
+									"pm.expect(targetRaw.length > 3);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Подборка должны содержать поля: id, name, location\", function () {\r",
+									"pm.expect(target).to.have.property('id');\r",
+									"pm.expect(target).to.have.property('lat');\r",
+									"pm.expect(target).to.have.property('lon');\r",
+									"pm.expect(target).to.have.property('name');\r",
+									"pm.expect(target).to.have.property('description');\r",
+									"pm.expect(target).to.have.property('radius');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
+									"    pm.expect(source.id).equal(target.id, 'Id должны быть идентичны ');\r",
+									"    pm.expect(source.lat).equal(target.lat, 'Latitude должны быть идентичны ');\r",
+									"    pm.expect(source.lon).equal(target.lon, 'Longitude должны быть идентичны ');\r",
+									"    pm.expect(source.name).equal(target.name, 'Имя должно быть идентичным ');\r",
+									"    pm.expect(source.description).equal(target.description, 'Описание должно быть идентичным ');\r",
+									"    pm.expect(source.radius).equal(target.radius, 'Радиус должно быть идентичным ');\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/locations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"locations"
 							]
 						}
 					},
@@ -1287,33 +1266,23 @@
 					"        };",
 					"    }",
 					"",
-					"    getLocation() {",
+					"    getLocationAdmin(radius) {",
 					"        return {",
 					"            name: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 100).toString(),",
-					"            location: {",
-					"                lat: parseFloat(pm.variables.replaceIn('{{$randomLatitude}}')),",
-					"                lon: parseFloat(pm.variables.replaceIn('{{$randomLongitude}}')),",
-					"            },",
+					"            lat: parseFloat(pm.variables.replaceIn('{{$randomLatitude}}')),",
+					"            lon: parseFloat(pm.variables.replaceIn('{{$randomLongitude}}')),",
+					"            description: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 100).toString(),",
+					"            radius",
 					"        };",
 					"    }",
 					"",
-					"    getLocationWithVarName(name) {",
-					"        return {",
-					"            name: name,",
-					"            location: {",
-					"               lat: parseFloat(pm.variables.replaceIn('{{$randomLatitude}}')),",
-					"               lon: parseFloat(pm.variables.replaceIn('{{$randomLongitude}}')),",
-					"            },",
-					"        };",
-					"    }",
-					"",
-					"    getLocationWithCustomLocation(lat, lon) {",
+					"    getLocationWithCustomLocation(lat, lon, radius) {",
 					"        return {",
 					"            name: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 100).toString(),",
-					"            location: {",
-					"                lat,",
-					"                lon,",
-					"            },",
+					"            lat,",
+					"            lon,",
+					"            description: pm.variables.replaceIn('{{$randomWord}}') + Math.floor(Math.random() * 100).toString(),",
+					"            radius",
 					"        };",
 					"    }",
 					"",

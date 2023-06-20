@@ -69,10 +69,22 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "select l.id from Location l " +
             "where distance(l.lat, l.lon, :locLat, :locLon) <= :radius) " +
             "order by ev.createdOn DESC ")
-    Page<Event> findEventsInLocation(Double locLat,
-                                     Double locLon,
-                                     Double radius,
-                                     Pageable page
+    Page<Event> findEventsInLocationAdmin(Double locLat,
+                                          Double locLon,
+                                          Double radius,
+                                          Pageable page
     );
+
+    @Query("select ev from Event ev " +
+            "where ev.published != null AND ev.locationId IN (" +
+            "select l.id from Location l " +
+            "where distance(l.lat, l.lon, :locLat, :locLon) <= :radius) " +
+            "order by ev.createdOn DESC ")
+    Page<Event> findEventsInLocationUser(Double locLat,
+                                         Double locLon,
+                                         Double radius,
+                                         Pageable page
+    );
+
 
 }

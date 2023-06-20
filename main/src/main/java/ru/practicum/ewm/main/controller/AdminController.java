@@ -12,16 +12,16 @@ import ru.practicum.ewm.main.dto.compilation.CompilationDto;
 import ru.practicum.ewm.main.dto.compilation.NewCompilationDto;
 import ru.practicum.ewm.main.dto.compilation.UpdateCompilationDto;
 import ru.practicum.ewm.main.dto.event.*;
-import ru.practicum.ewm.main.dto.locationAdmin.LocationAdminDto;
-import ru.practicum.ewm.main.dto.locationAdmin.NewLocationAdminDto;
-import ru.practicum.ewm.main.dto.locationAdmin.UpdateLocationAdminRequest;
+import ru.practicum.ewm.main.dto.location.LocationAdminDto;
+import ru.practicum.ewm.main.dto.location.NewLocationAdminDto;
+import ru.practicum.ewm.main.dto.location.UpdateLocationAdminRequest;
 import ru.practicum.ewm.main.dto.user.NewUserRequestDto;
 import ru.practicum.ewm.main.dto.user.UserDto;
 import ru.practicum.ewm.main.model.event.EventState;
 import ru.practicum.ewm.main.service.category.CategoryService;
 import ru.practicum.ewm.main.service.compilation.CompilationService;
 import ru.practicum.ewm.main.service.event.EventService;
-import ru.practicum.ewm.main.service.locationAdmin.LocationAdminService;
+import ru.practicum.ewm.main.service.location.LocationService;
 import ru.practicum.ewm.main.service.stat.StatService;
 import ru.practicum.ewm.main.service.user.UserService;
 
@@ -40,7 +40,7 @@ public class AdminController {
     private final CompilationService compilationService;
     private final EventService eventService;
     private final StatService statService;
-    private final LocationAdminService locationAdminService;
+    private final LocationService locationService;
 
     @GetMapping("/events")
     public List<EventFullDto> getAllEventsAdmin(
@@ -81,7 +81,7 @@ public class AdminController {
     @PostMapping("/locations")
     public ResponseEntity<Object> saveNewLocation(@Validated @RequestBody NewLocationAdminDto newLocation) {
         statService.saveHit("/admin/locations");
-        LocationAdminDto locationSaved = locationAdminService.saveLocationAdmin(newLocation);
+        LocationAdminDto locationSaved = locationService.saveLocationAdmin(newLocation);
         return new ResponseEntity<>(locationSaved, HttpStatus.CREATED);
     }
 
@@ -91,37 +91,35 @@ public class AdminController {
     ) {
 
         statService.saveHit("/admin/locations/" + locationId);
-        return locationAdminService.updateLocationAdmin(locationId, updateLocation);
+        return locationService.updateLocationAdmin(locationId, updateLocation);
     }
 
     @DeleteMapping("/locations/{locationId}")
     public ResponseEntity<Object> deleteLocation(@PathVariable Long locationId) {
         statService.saveHit("/admin/locations/" + locationId);
-        locationAdminService.deleteLocationAdmin(locationId);
+        locationService.deleteLocationAdmin(locationId);
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NO_CONTENT);
     }
-
 
     @GetMapping("/locations")
     public List<LocationAdminDto> getLocationAdmin() {
         statService.saveHit("/admin/locations");
-        return locationAdminService.getLocationAdmin();
+        return locationService.getLocationsAdmin();
     }
 
     @GetMapping("/locations/{locationId}")
     public LocationAdminDto getLocationById(@PathVariable Long locationId) {
         statService.saveHit("/admin/locations/" + locationId);
-        return locationAdminService.getLocationAdminById(locationId);
+        return locationService.getLocationAdminById(locationId);
     }
 
     @GetMapping("/locations/{locationId}/events")
     public List<EventFullDto> getAllEventsInLocation(
             @PathVariable Long locationId,
-            @RequestParam(defaultValue = "10") @Min(0) Double radius,
             @RequestParam(defaultValue = "0") @Min(0) Integer from,
             @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         statService.saveHit("/admin/locations/" + locationId + "/events");
-        return locationAdminService.getAllEventsInLocation(locationId, radius, from, size);
+        return locationService.getAllEventsInLocationAdmin(locationId, from, size);
     }
 
     @PostMapping("/compilations")
