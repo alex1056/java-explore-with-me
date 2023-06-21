@@ -109,8 +109,6 @@ public class RequestServiceImpl implements RequestService {
         List<Request> rConf = new ArrayList<>();
         List<Request> rRej = new ArrayList<>();
 
-        System.out.println("updateRequestStatus=" + updateRequestStatus);
-        System.out.println("ids=" + ids);
         RequestCounter rc2 = requestSpecRepository.findRequestCountAllByStatus(eventId, RequestStatus.CONFIRMED);
         long confRequestNumber = rc2.getCounter();
         /* проверяем какой статус в заявках надо проставить */

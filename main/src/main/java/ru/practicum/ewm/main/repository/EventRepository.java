@@ -63,4 +63,28 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "ORDER BY e.eventDate ASC"
     )
     Page<Event> findEventsByParamsAdmin(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
+
+    @Query("select ev from Event ev " +
+            "where ev.locationId IN (" +
+            "select l.id from Location l " +
+            "where distance(l.lat, l.lon, :locLat, :locLon) <= :radius) " +
+            "order by ev.createdOn DESC ")
+    Page<Event> findEventsInLocationAdmin(Double locLat,
+                                          Double locLon,
+                                          Double radius,
+                                          Pageable page
+    );
+
+    @Query("select ev from Event ev " +
+            "where ev.published != null AND ev.locationId IN (" +
+            "select l.id from Location l " +
+            "where distance(l.lat, l.lon, :locLat, :locLon) <= :radius) " +
+            "order by ev.createdOn DESC ")
+    Page<Event> findEventsInLocationUser(Double locLat,
+                                         Double locLon,
+                                         Double radius,
+                                         Pageable page
+    );
+
+
 }

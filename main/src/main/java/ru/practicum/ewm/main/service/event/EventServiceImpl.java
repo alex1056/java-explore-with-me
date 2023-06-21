@@ -54,10 +54,10 @@ public class EventServiceImpl implements EventService {
                 newEventDto.getEventDate(),
                 newEventDto.getAnnotation(),
                 newEventDto.getTitle(),
-                userId, //initiator
+                userId,
                 null,
-                location.getId(), // locationId
-                null,
+                location.getId(),
+                location,
                 newEventDto.getPaid() != null && newEventDto.getPaid(),
                 newEventDto.getParticipantLimit() == null ? 0 : newEventDto.getParticipantLimit(),
                 newEventDto.getRequestModeration() == null || newEventDto.getRequestModeration(),
@@ -69,7 +69,6 @@ public class EventServiceImpl implements EventService {
         );
 
         Event eventSaved = repository.save(newEvent);
-        eventSaved.setLocation(location);
         return EventMapper.toEventFullDto(eventSaved);
     }
 

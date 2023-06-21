@@ -16,7 +16,6 @@ public class BaseClient {
         this.rest = rest;
     }
 
-    //    protected <T> ResponseEntity<T> get(String path, @Nullable Map<String, Object> params) {
     protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> params) {
         return makeAndSendRequest(HttpMethod.GET, path, params, null);
     }
@@ -29,7 +28,6 @@ public class BaseClient {
         return makeAndSendRequest(HttpMethod.POST, path, params, body);
     }
 
-    //    private <T> ResponseEntity<T>
     private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, @Nullable Map<String, Object> parameters, @Nullable T body) {
         HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders());
 

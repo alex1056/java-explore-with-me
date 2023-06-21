@@ -15,6 +15,17 @@ public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Float lat;
-    private Float lon;
+    private Double lat;
+    private Double lon;
+    private String name;
+    private String description;
+    private Double radius;
+
+    public String getName() {
+        return name != null ? name.trim() : null;
+    }
+
+    public String getDescription() {
+        return description != null ? description.trim() : null;
+    }
 }
