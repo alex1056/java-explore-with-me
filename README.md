@@ -1,4 +1,4 @@
-# java-explore-with-me
+# java-explore-with-me - v1
 
 ### Схема БД Stats
 
